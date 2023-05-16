@@ -1,9 +1,9 @@
 import React from 'react'
 
-function NoteSearch() {
+function NoteSearch({search, onSearchChange}) {
   return (
     <div className='note-search'>
-      <input type="text" placeholder='Cari catatan...' />
+      <input type="text" placeholder='Cari catatan...' value={search} onChange={onSearchChange}/>
     </div>
   )
 }
