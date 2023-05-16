@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import NoteHeader from './NoteHeader';
-import { getInitialData, showFormattedDate } from '../utils';
+import { getInitialData } from '../utils';
 import NoteList from './NoteList';
 import NoteInput from './NoteInput';
 
@@ -10,10 +10,13 @@ export class NoteApp extends Component {
 
     this.state = {
       notes: getInitialData(),
+      search: '',
     };
 
     this.onDeleteHandler = this.onDeleteHandler.bind(this);
     this.onAddNoteHandler = this.onAddNoteHandler.bind(this);
+    this.onSearchHandler = this.onSearchHandler.bind(this);
+    this.onArchiveHandler = this.onArchiveHandler.bind(this);
   }
 
   onDeleteHandler(id) {
@@ -21,8 +24,7 @@ export class NoteApp extends Component {
     this.setState({ notes });
   }
 
-  onAddNoteHandler({ title, body, createdAt }) {
-    const date = showFormattedDate(createdAt);
+  onAddNoteHandler({ title, body }) {
     this.setState((prevState) => {
       return {
         notes: [
@@ -30,22 +32,68 @@ export class NoteApp extends Component {
           {
             id: +new Date(),
             title,
-            createdAt: date,
+            createdAt: +new Date(),
             body,
+            archived: false,
           },
         ],
       };
     });
   }
 
+  onSearchHandler = (event) => {
+    this.setState(() => {
+      return {
+        search: event.target.value,
+      };
+    });
+  };
+
+  onArchiveHandler = (id) => {
+    const notes = this.state.notes.map((note) =>
+      note.id === id ? { ...note, archived: !note.archived } : note
+    );
+    this.setState({ notes });
+  };
+
   render() {
+    const notes = this.state.notes.filter((note) =>
+      note.title.toLowerCase().includes(this.state.search.toLowerCase())
+    );
+
+    const activeNotes = notes.filter((note) => !note.archived);
+
+    const archivedNotes = notes.filter((note) => note.archived === true);
     return (
       <>
-        <NoteHeader />
+        <NoteHeader
+          search={this.state.search}
+          onSearchChange={this.onSearchHandler}
+        />
         <div className="note-app__body">
-          <NoteInput addNote={this.onAddNoteHandler}/>
+          <NoteInput addNote={this.onAddNoteHandler} />
           <h2>Catatan Aktif</h2>
-          <NoteList notes={this.state.notes} onDelete={this.onDeleteHandler} />
+          {activeNotes.length > 0 ? (
+            <NoteList
+              keyword={this.state.keyword}
+              notes={activeNotes}
+              onDelete={this.onDeleteHandler}
+              onArchived={this.onArchiveHandler}
+            />
+          ) : (
+            <p className="notes-list__empty-message">Tidak ada catatan</p>
+          )}
+          <h2>Arsip</h2>
+          {archivedNotes.length > 0 ? (
+            <NoteList
+              keyword={this.state.keyword}
+              notes={archivedNotes}
+              onDelete={this.onDeleteHandler}
+              onArchived={this.onArchiveHandler}
+             />
+          ) : (
+            <p className="notes-list__empty-message">Tidak ada catatan</p>
+          )}
         </div>
       </>
     );

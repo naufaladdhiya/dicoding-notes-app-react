@@ -1,16 +1,21 @@
-import React from 'react'
-import NoteItem from './NoteItem'
+import React from 'react';
+import NoteItem from './NoteItem';
 
-function NoteList({notes, onDelete, onArchived}) {
+function NoteList({ notes, onDelete, onArchived }) {
   return (
-    <div className='notes-list'>
-      {
-        notes.map((note) => (
-            <NoteItem key={note.id} id={note.id} onDelete={onDelete} onArchived={onArchived}{...note} />
-        ))
-      }
+    <div className="notes-list">
+      {notes.map((note) => (
+        <NoteItem
+          key={note.id}
+          id={note.id}
+          onDelete={onDelete}
+          onArchived={onArchived}
+          isArchived={note.archived}
+          {...note}
+        />
+      ))}
     </div>
-  )
+  );
 }
 
-export default NoteList
+export default NoteList;
